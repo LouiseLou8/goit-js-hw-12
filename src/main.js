@@ -8,8 +8,12 @@ import {
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
+const loadMoreBtn = document.querySelector('.load-more');
 const form = document.querySelector('.form');
 const input = document.querySelector('.search-input');
+let currentPage = 1;
+let currentQuery = '';
+let totalHits = 0;
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
@@ -21,11 +25,14 @@ form.addEventListener('submit', async event => {
     });
     return;
   }
-  showLoader();
+  currentQuery = query;
+  currentPage = 1;
   clearGallery();
+  hideLoadMoreButton();
+  showLoader();
 
   try {
-    const data = await getImagesByQuery(query);
+    const data = await getImagesByQuery(currentQuery, currentPage);
     if (data.hits.length === 0) {
       iziToast.error({
         message: 'Нічого не знайдено за запитом',
