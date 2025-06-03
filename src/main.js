@@ -50,3 +50,51 @@ form.addEventListener('submit', async event => {
     hideLoader();
   }
 });
+
+loadMoreBtn.addEventListener('click', async () => {
+  currentPage += 1;
+  showLoader();
+  hideLoadMoreButton();
+
+  try {
+    const data = await getImagesByQuery(currentQuery, currentPage);
+    createGallery(data.hits);
+
+    const totalLoaded = currentPage * 15;
+    if (totalLoaded >= totalHits) {
+      hideLoadMoreButton();
+      iziToast.info({
+        message: 'Ви завантажили всі доступні зображення',
+        position: 'topRight',
+      });
+    } else {
+      showLoadMoreButton();
+    }
+
+    smoothScroll();
+  } catch (error) {
+    iziToast.error({
+      message: 'Помилка при завантаженні додаткових зображень',
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader();
+  }
+});
+function smoothScroll() {
+  const galleryItem = document.querySelector('.gallery-item');
+  if (!galleryItem) return;
+
+  const itemHeight = galleryItem.getBoundingClientRect().height;
+  window.scrollBy({
+    top: itemHeight * 2,
+    behavior: 'smooth',
+  });
+}
+function showLoadMoreButton() {
+  loadMoreBtn.classList.remove('is-hidden');
+}
+
+function hideLoadMoreButton() {
+  loadMoreBtn.classList.add('is-hidden');
+}
