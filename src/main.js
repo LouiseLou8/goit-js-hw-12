@@ -18,6 +18,7 @@ let totalHits = 0;
 form.addEventListener('submit', async event => {
   event.preventDefault();
   const query = input.value.trim();
+
   if (query === '') {
     iziToast.error({
       message: 'Введіть запит для пошуку',
@@ -25,6 +26,7 @@ form.addEventListener('submit', async event => {
     });
     return;
   }
+
   currentQuery = query;
   currentPage = 1;
   clearGallery();
@@ -33,6 +35,8 @@ form.addEventListener('submit', async event => {
 
   try {
     const data = await getImagesByQuery(currentQuery, currentPage);
+    totalHits = data.totalHits;
+
     if (data.hits.length === 0) {
       iziToast.error({
         message: 'Нічого не знайдено за запитом',
@@ -40,7 +44,12 @@ form.addEventListener('submit', async event => {
       });
       return;
     }
+
     createGallery(data.hits);
+
+    if (totalHits > currentPage * 15) {
+      showLoadMoreButton();
+    }
   } catch (error) {
     iziToast.error({
       message: 'Сталася помилка при отрманні даних',
